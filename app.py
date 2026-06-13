@@ -1,9 +1,14 @@
 import httpx
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 TIMEOUT_CONFIG = httpx.Timeout(10.0, read=30.0)
+
+
+@app.get("/")
+async def read_index():
+    return FileResponse("index.html")
 
 
 @app.get("/api/search")
@@ -32,9 +37,3 @@ async def proxy_stream(video_id: str, quality: str = Query("360p")):
             raise HTTPException(status_code=e.response.status_code)
         except httpx.RequestError:
             raise HTTPException(status_code=503)
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
